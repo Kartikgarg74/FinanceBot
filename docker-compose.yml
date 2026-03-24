@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  financebot:
+    build: .
+    container_name: financebot
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    restart: unless-stopped
+    command: ["python", "main.py", "--market", "all"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3

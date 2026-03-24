@@ -1,0 +1,69 @@
+zerodha:
+  api_key: "${ZERODHA_API_KEY}"
+  api_secret: "${ZERODHA_API_SECRET}"
+  user_id: "${ZERODHA_USER_ID}"
+  password: "${ZERODHA_PASSWORD}"
+  totp_secret: "${ZERODHA_TOTP_SECRET}"
+
+trading:
+  mode: "paper"  # "paper" | "live" — ALWAYS start with paper
+  max_capital_per_trade: 50000  # INR
+  max_daily_loss: 10000  # INR
+  max_positions: 10
+  allowed_exchanges: ["NSE", "BSE"]
+  order_types: ["MARKET", "LIMIT", "SL"]
+  product_types: ["CNC", "MIS"]
+
+strategy:
+  indicators:
+    - name: "RSI"
+      period: 14
+      oversold: 30
+      overbought: 70
+    - name: "MACD"
+      fast: 12
+      slow: 26
+      signal: 9
+    - name: "EMA"
+      periods: [20, 50, 200]
+    - name: "Bollinger"
+      period: 20
+      std_dev: 2
+    - name: "ATR"
+      period: 14
+    - name: "VWAP"
+  signal_threshold: 70  # minimum confidence to act (0-100)
+  signal_weights:
+    technical: 0.60
+    sentiment: 0.30
+    chart_vision: 0.10
+
+watchlist:
+  - "RELIANCE"
+  - "TCS"
+  - "INFY"
+  - "HDFCBANK"
+  - "ICICIBANK"
+  - "SBIN"
+  - "BHARTIARTL"
+  - "ITC"
+  - "KOTAKBANK"
+  - "LT"
+  - "WIPRO"
+  - "AXISBANK"
+  - "MARUTI"
+  - "TATAMOTORS"
+  - "ADANIENT"
+
+schedule:
+  market_hours: "09:15-15:30"
+  timezone: "Asia/Kolkata"
+  scan_interval_minutes: 15
+  portfolio_check_minutes: 5
+  daily_summary_time: "16:00"
+  login_time: "09:00"
+
+data:
+  source: "yfinance"  # Free historical data: yfinance (append .NS for NSE)
+  history_days: 365
+  candle_intervals: ["15m", "1h", "1d"]

@@ -1,0 +1,47 @@
+binance:
+  api_key: "${BINANCE_API_KEY}"
+  api_secret: "${BINANCE_API_SECRET}"
+  testnet: true  # Use testnet first
+
+trading:
+  mode: "dry_run"  # "dry_run" (paper) | "live"
+  stake_currency: "USDT"
+  stake_amount: 100  # USDT per trade
+  max_open_trades: 5
+  tradable_balance_ratio: 0.8
+
+pairs:
+  - "BTC/USDT"
+  - "ETH/USDT"
+  - "SOL/USDT"
+  - "BNB/USDT"
+  - "XRP/USDT"
+
+strategy:
+  primary_timeframe: "5m"
+  informative_timeframes: ["15m", "1h", "4h"]
+  startup_candle_count: 200
+  signal_weights:
+    ml: 0.40
+    technical: 0.30
+    sentiment: 0.20
+    chart_vision: 0.10
+
+risk:
+  stoploss: -0.05  # 5% stop-loss
+  trailing_stop: true
+  trailing_stop_positive: 0.01
+  trailing_stop_positive_offset: 0.03
+  max_drawdown: 0.10  # Pause if portfolio drops 10%
+
+schedule:
+  runs: "24/7"
+  scan_interval_minutes: 5
+  news_scan_interval_minutes: 15
+  reddit_scan_interval_minutes: 30
+  chart_analysis_interval_hours: 6
+
+telegram:
+  enabled: true
+  token: "${TELEGRAM_BOT_TOKEN}"
+  chat_id: "${TELEGRAM_CHAT_ID}"

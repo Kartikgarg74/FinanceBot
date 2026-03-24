@@ -1,0 +1,126 @@
+news:
+  sources:
+    finnhub:
+      api_key: "${FINNHUB_API_KEY}"
+      enabled: true
+      categories: ["general", "forex", "crypto", "merger"]
+    alpha_vantage:
+      api_key: "${ALPHA_VANTAGE_API_KEY}"
+      enabled: true
+    marketaux:
+      api_key: "${MARKETAUX_API_KEY}"
+      enabled: true
+    reddit:
+      client_id: "${REDDIT_CLIENT_ID}"
+      client_secret: "${REDDIT_CLIENT_SECRET}"
+      user_agent: "${REDDIT_USER_AGENT}"
+      subreddits: ["IndianStreetBets", "wallstreetbets", "cryptocurrency", "stocks"]
+      enabled: true
+
+  sentiment:
+    ai_model: "claude-haiku-4-5-20251001"
+    min_confidence: 50
+    score_decay_hours_stocks: 24
+    score_decay_hours_crypto: 6
+    batch_size: 10
+
+  scan_schedule:
+    stocks_interval_minutes: 30
+    crypto_interval_minutes: 15
+    reddit_interval_minutes: 30
+
+# Static macro impact rules (no API call needed)
+macro_impact_rules:
+  fed_rate_hike:
+    triggers: ["fed raises", "rate hike", "hawkish fed", "tightening", "fed funds rate"]
+    impact:
+      banking_us: 2
+      tech_us: -3
+      real_estate_us: -3
+      crypto: -4
+      gold: -1
+      emerging_markets: -2
+  rbi_rate_hike:
+    triggers: ["rbi raises", "repo rate hike", "rbi hawkish", "rbi tightening"]
+    impact:
+      banking_india: 2
+      real_estate_india: -3
+      auto_india: -2
+      it_india: 1
+  fed_rate_cut:
+    triggers: ["fed cuts", "rate cut", "dovish fed", "easing"]
+    impact:
+      tech_us: 3
+      real_estate_us: 2
+      crypto: 4
+      gold: 2
+      banking_us: -1
+  rbi_rate_cut:
+    triggers: ["rbi cuts", "repo rate cut", "rbi dovish"]
+    impact:
+      banking_india: -1
+      real_estate_india: 3
+      auto_india: 2
+      it_india: -1
+  oil_price_surge:
+    triggers: ["oil prices surge", "opec cut", "crude oil rises", "brent crude up"]
+    impact:
+      energy: 3
+      airlines: -3
+      paint_india: -2
+      auto_india: -1
+      crypto: -1
+  war_geopolitical:
+    triggers: ["war", "invasion", "military strike", "missile", "sanctions"]
+    impact:
+      defense: 3
+      oil: 3
+      gold: 3
+      crypto: -2
+      equity_broad: -2
+  crypto_sec_ruling:
+    triggers: ["SEC crypto", "bitcoin ETF", "crypto regulation", "crypto ban"]
+    impact:
+      crypto: -4  # Default negative, override if positive context
+  crypto_positive:
+    triggers: ["bitcoin ETF approved", "crypto adoption", "institutional crypto", "bitcoin halving"]
+    impact:
+      crypto: 4
+  inflation_high:
+    triggers: ["inflation rises", "CPI above", "inflation surges", "price pressure"]
+    impact:
+      gold: 2
+      real_estate: 1
+      bonds: -2
+      tech_us: -2
+      crypto: -1
+
+# Sector-to-ticker mapping for Indian market
+sector_tickers:
+  banking_india: ["HDFCBANK", "ICICIBANK", "SBIN", "KOTAKBANK", "AXISBANK"]
+  it_india: ["TCS", "INFY", "WIPRO", "HCLTECH", "TECHM"]
+  auto_india: ["MARUTI", "TATAMOTORS", "M&M", "BAJAJ-AUTO", "HEROMOTOCO"]
+  real_estate_india: ["DLF", "GODREJPROP", "OBEROIRLTY", "PRESTIGE"]
+  energy: ["RELIANCE", "ONGC", "BPCL", "IOC"]
+  pharma_india: ["SUNPHARMA", "DRREDDY", "CIPLA", "DIVISLAB"]
+  defense: ["HAL", "BEL", "BHEL"]
+  paint_india: ["ASIANPAINT", "BERGRPAINT"]
+
+# Sector-to-ticker mapping for US market
+  banking_us: ["JPM", "BAC", "GS", "MS", "WFC"]
+  tech_us: ["AAPL", "MSFT", "GOOGL", "META", "NVDA", "AMZN"]
+  real_estate_us: ["O", "AMT", "PLD", "SPG"]
+
+# Crypto tickers affected by macro
+  crypto: ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "XRP/USDT"]
+
+# Source credibility weights
+source_weights:
+  finnhub: 1.0
+  alpha_vantage: 0.9
+  marketaux: 0.8
+  reuters: 1.0
+  bloomberg: 1.0
+  reddit: 0.5
+  twitter: 0.4
+  cryptopanic: 0.6

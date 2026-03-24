@@ -1,0 +1,39 @@
+ai:
+  primary_provider: "anthropic"
+  fallback_provider: "groq"
+
+  anthropic:
+    api_key: "${ANTHROPIC_API_KEY}"
+    models:
+      cheap: "claude-haiku-4-5-20251001"
+      quality: "claude-sonnet-4-6"
+
+  groq:
+    api_key: "${GROQ_API_KEY}"
+    model: "llama-3.3-70b-versatile"
+    rate_limit: 14400
+
+  routing:
+    news_sentiment: "cheap"
+    macro_impact: "cheap"
+    chart_analysis: "quality"
+    trade_signal: "cheap"
+
+  cost_optimization:
+    use_prompt_caching: true
+    cache_similar_responses: true
+
+tracking:
+  local_db: "data/financebot.db"
+
+notifications:
+  telegram:
+    bot_token: "${TELEGRAM_BOT_TOKEN}"
+    chat_id: "${TELEGRAM_CHAT_ID}"
+    enabled: true
+  email:
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    sender_email: "${EMAIL_ADDRESS}"
+    sender_password: "${EMAIL_APP_PASSWORD}"
+    enabled: false

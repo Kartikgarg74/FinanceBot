@@ -1,0 +1,27 @@
+alpaca:
+  api_key: "${ALPACA_API_KEY}"
+  api_secret: "${ALPACA_API_SECRET}"
+  base_url: "https://paper-api.alpaca.markets"  # Paper trading URL
+
+trading:
+  mode: "paper"
+  max_capital_per_trade: 1000  # USD
+  max_daily_loss: 500  # USD
+  max_positions: 15
+
+watchlist:
+  - "AAPL"
+  - "MSFT"
+  - "GOOGL"
+  - "AMZN"
+  - "TSLA"
+  - "META"
+  - "NVDA"
+  - "JPM"
+  - "V"
+  - "JNJ"
+
+schedule:
+  market_hours: "09:30-16:00"
+  timezone: "America/New_York"
+  scan_interval_minutes: 15

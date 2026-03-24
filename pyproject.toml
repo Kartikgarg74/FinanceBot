@@ -1,0 +1,9 @@
+[project]
+name = "financebot"
+version = "1.0.0"
+description = "AI-Powered Trading Bot — Indian Stocks, US Stocks, and Crypto"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
