@@ -1,13 +1,41 @@
-data/
+# Environment & Secrets
 .env
+.env.local
+.env.*.local
+
+# Python
 __pycache__/
-*.pyc
-*.pyo
-venv/
-.venv/
-.vscode/
-.idea/
+*.py[cod]
+*$py.class
 *.egg-info/
 dist/
 build/
+venv/
+.venv/
+
+# Data & Logs
+data/
+*.db
+*.sqlite3
+*.log
+logs/
+
+# Generated files
+*.csv
+*.json.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
 .pytest_cache/
+.coverage
+htmlcov/

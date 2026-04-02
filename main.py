@@ -2,6 +2,7 @@
 
 import argparse
 import asyncio
+import os
 import signal
 import sys
 from pathlib import Path
@@ -23,8 +24,8 @@ def parse_args():
     parser.add_argument("--market", default=None,
                         choices=["zerodha", "alpaca", "binance", "all"],
                         help="Finance market to trade (default: all configured)")
-    parser.add_argument("--user", default="kartik",
-                        help="User profile to load (default: kartik)")
+    parser.add_argument("--user", default=os.environ.get("FINANCEBOT_USER", "kartik"),
+                        help="User profile to load (default: $FINANCEBOT_USER or kartik)")
     parser.add_argument("--mode", default=None,
                         choices=["paper", "live", "dry_run"],
                         help="Mode override: paper/live/dry_run")

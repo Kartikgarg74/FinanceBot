@@ -1,5 +1,6 @@
 """Trading engine — orchestrates the full analysis-signal-trade loop with all integrations."""
 
+import asyncio
 import logging
 from datetime import datetime
 from typing import Optional
@@ -75,18 +76,34 @@ class TradingEngine:
             logger.info("[%s] Market closed. Next open: %s", self.market_name.upper(), next_open)
             return signals
 
-        # 1. Check if we can trade
-        try:
-            capital = await resilient_call(
-                f"{self.market_name}_data", self.trader.get_balance
-            )
-            positions = await resilient_call(
-                f"{self.market_name}_data", self.trader.get_positions
-            )
-        except ConnectionError as e:
-            logger.error("[%s] API down: %s", self.market_name, e)
-            if self.telegram:
-                await self.telegram.send_message(f"[{self.market_name.upper()}] API connection issue: {e}")
+        # 1. Check if we can trade (with retry)
+        max_retries = 3
+        capital = None
+        positions = None
+        for attempt in range(max_retries):
+            try:
+                capital = await resilient_call(
+                    f"{self.market_name}_data", self.trader.get_balance
+                )
+                positions = await resilient_call(
+                    f"{self.market_name}_data", self.trader.get_positions
+                )
+                break  # Success
+            except ConnectionError as e:
+                if attempt < max_retries - 1:
+                    backoff = 2 ** attempt
+                    logger.warning("[%s] API failed (attempt %d/%d). Retrying in %ds...",
+                                   self.market_name, attempt + 1, max_retries, backoff)
+                    await asyncio.sleep(backoff)
+                else:
+                    logger.error("[%s] API down after %d retries: %s", self.market_name, max_retries, e)
+                    if self.telegram:
+                        await self.telegram.send_message(
+                            f"[{self.market_name.upper()}] API down after {max_retries} retries — no trades executed"
+                        )
+                    return signals
+
+        if capital is None:
             return signals
 
         self.risk_mgr.update_capital(capital)

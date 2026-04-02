@@ -50,6 +50,20 @@ class AIRouter:
                 daily_limit=groq_config.get("rate_limit", 14400),
             )
 
+        # Validate at least one provider is configured
+        if not self.claude and not self.groq:
+            raise RuntimeError(
+                "No AI providers configured. "
+                "Set ANTHROPIC_API_KEY or GROQ_API_KEY in your .env file."
+            )
+
+        configured = []
+        if self.claude:
+            configured.append("Anthropic (Claude)")
+        if self.groq:
+            configured.append("Groq")
+        logger.info("AI providers configured: %s", ", ".join(configured))
+
         self.models = anthropic_config.get("models", {
             "cheap": "claude-haiku-4-5-20251001",
             "quality": "claude-sonnet-4-6",
@@ -105,6 +119,31 @@ class AIRouter:
             logger.info("AI [%s] fallback %s/%s: OK", task, type(client).__name__, model)
             return result
 
+    def _validate_json_output(self, task: str, result: dict) -> dict:
+        """Validate and sanitize LLM JSON output for trading tasks."""
+        if not isinstance(result, dict):
+            logger.warning("LLM returned non-dict for %s: %s", task, type(result).__name__)
+            return {}
+
+        # Clamp confidence/score values to valid ranges
+        for key in ("confidence", "score", "sentiment_score"):
+            if key in result:
+                try:
+                    val = float(result[key])
+                    result[key] = max(-100.0, min(100.0, val))
+                except (TypeError, ValueError):
+                    logger.warning("LLM returned non-numeric %s: %r", key, result[key])
+                    result[key] = 0.0
+
+        # Validate action fields
+        if "action" in result:
+            valid_actions = {"buy", "sell", "hold", "strong_buy", "strong_sell"}
+            if str(result["action"]).lower() not in valid_actions:
+                logger.warning("LLM returned invalid action: %r, defaulting to hold", result["action"])
+                result["action"] = "hold"
+
+        return result
+
     def route_json(self, task: str, prompt: str, system_prompt: str = "",
                    max_tokens: int = 2048, temperature: float = 0.3) -> dict:
         """Route a JSON completion request to the appropriate AI provider."""
@@ -117,7 +156,7 @@ class AIRouter:
                 system_prompt=system_prompt, temperature=temperature,
             )
             logger.info("AI JSON [%s] %s/%s: OK", task, type(client).__name__, model)
-            return result
+            return self._validate_json_output(task, result)
         except Exception as e:
             logger.warning("Primary provider failed for %s: %s. Trying fallback...", task, sanitize_error(e))
             client, model = self._get_client_and_model(task, use_fallback=True)
@@ -126,7 +165,7 @@ class AIRouter:
                 system_prompt=system_prompt, temperature=temperature,
             )
             logger.info("AI JSON [%s] fallback %s/%s: OK", task, type(client).__name__, model)
-            return result
+            return self._validate_json_output(task, result)
 
     @property
     def cost_summary(self) -> str:
